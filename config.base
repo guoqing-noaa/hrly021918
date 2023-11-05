@@ -40,7 +40,7 @@ export FIXreg2grb2=${HOMEgfs}/fix/reg2grb2
 export PACKAGEROOT="/scratch1/NCEPDEV/global/glopara/nwpara"    # TODO: set via prod_envir in Ops
 export COMROOT="/scratch1/NCEPDEV/global/glopara/com"    # TODO: set via prod_envir in Ops
 export COMINsyn="${COMROOT}/gfs/prod/syndat"
-export DMPDIR="/scratch1/NCEPDEV/global/glopara/dump"
+export DMPDIR="/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/dump"
 export BASE_CPLIC="/scratch1/NCEPDEV/climate/role.ufscpara/IC"
 
 # USER specific paths
