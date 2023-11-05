@@ -19,8 +19,8 @@
 	<log verbosity="10"><cyclestr>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918/logs/@Y@m@d@H.log</cyclestr></log>
 
 	<!-- Define the cycles -->
-	<cycledef group="gdas_half">202302191800 202302191800 06:00:00</cycledef>
-	<cycledef group="gdas">202302200000 202302192000 06:00:00</cycledef>
+	<cycledef group="gdas_half">202302191800 202302191800 01:00:00</cycledef>
+	<cycledef group="gdas">202302191900 202302192000 01:00:00</cycledef>
 
 <task name="gdasprep" cycledefs="gdas" maxtries="&MAXTRIES;">
 
@@ -51,9 +51,9 @@
 
 	<dependency>
 		<and>
-			<metataskdep metatask="gdaspost" cycle_offset="-06:00:00"/>
-			<datadep><cyclestr offset="-06:00:00">&ROTDIR;/gdas.@Y@m@d/@H//model_data/atmos/history/gdas.t@Hz.atmf009.nc</cyclestr></datadep>
-			<datadep><cyclestr>/scratch1/NCEPDEV/global/glopara/dump/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.updated.status.tm00.bufr_d</cyclestr></datadep>
+			<metataskdep metatask="gdaspost" cycle_offset="-01:00:00"/>
+			<datadep><cyclestr offset="-01:00:00">&ROTDIR;/gdas.@Y@m@d/@H//model_data/atmos/history/gdas.t@Hz.atmf009.nc</cyclestr></datadep>
+                        <datadep><cyclestr>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/dump/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.updated.status.tm00.bufr_d</cyclestr></datadep>
 		</and>
 	</dependency>
 
@@ -88,7 +88,7 @@
 	<dependency>
 		<and>
 			<taskdep task="gdasprep"/>
-			<metataskdep metatask="enkfgdasepmn" cycle_offset="-06:00:00"/>
+			<metataskdep metatask="enkfgdasepmn" cycle_offset="-01:00:00"/>
 		</and>
 	</dependency>
 
@@ -157,7 +157,7 @@
 		<and>
 			<taskdep task="gdasanal"/>
 			<taskdep task="gdassfcanl"/>
-			<taskdep task="enkfgdasechgres" cycle_offset="-06:00:00"/>
+			<taskdep task="enkfgdasechgres" cycle_offset="-01:00:00"/>
 		</and>
 	</dependency>
 
@@ -229,7 +229,7 @@
 			<and>
 				<taskdep task="gdassfcanl"/>
 			</and>
-			<not><cycleexistdep cycle_offset="-06:00:00"/></not>
+			<not><cycleexistdep cycle_offset="-01:00:00"/></not>
 		</or>
 	</dependency>
 
@@ -412,7 +412,7 @@
 	<dependency>
 		<and>
 			<taskdep task="gdasprep"/>
-			<metataskdep metatask="enkfgdasepmn" cycle_offset="-06:00:00"/>
+			<metataskdep metatask="enkfgdasepmn" cycle_offset="-01:00:00"/>
 		</and>
 	</dependency>
 
@@ -636,7 +636,7 @@
 					<metataskdep metatask="enkfgdasecmn"/>
 					<taskdep task="enkfgdasesfc"/>
 				</and>
-				<not><cycleexistdep cycle_offset="-06:00:00"/></not>
+				<not><cycleexistdep cycle_offset="-01:00:00"/></not>
 			</or>
 		</dependency>
 
