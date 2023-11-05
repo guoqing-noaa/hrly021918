@@ -1,0 +1,729 @@
+<?xml version="1.0"?>
+<!DOCTYPE workflow
+[
+	<!--
+	PROGRAM
+		Main workflow manager for Global Forecast System
+
+	NOTES:
+		This workflow was automatically generated at 2023-11-05 08:50:39.869669
+	-->
+	<!ENTITY PSLOT "hrly021918">
+	<!ENTITY ROTDIR "/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/hrly021918">
+	<!ENTITY JOBS_DIR "/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs/jobs/rocoto">
+	<!ENTITY MAXTRIES "2">
+]>
+
+<workflow realtime="F" scheduler="slurm" cyclethrottle="3" taskthrottle="25">
+
+	<log verbosity="10"><cyclestr>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918/logs/@Y@m@d@H.log</cyclestr></log>
+
+	<!-- Define the cycles -->
+	<cycledef group="gdas_half">202302191800 202302191800 06:00:00</cycledef>
+	<cycledef group="gdas">202302200000 202302192000 06:00:00</cycledef>
+
+<task name="gdasprep" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/prep.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasprep_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:30:00</walltime>
+	<nodes>2:ppn=2:tpp=1</nodes>
+	<memory>40G</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasprep.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<metataskdep metatask="gdaspost" cycle_offset="-06:00:00"/>
+			<datadep><cyclestr offset="-06:00:00">&ROTDIR;/gdas.@Y@m@d/@H//model_data/atmos/history/gdas.t@Hz.atmf009.nc</cyclestr></datadep>
+			<datadep><cyclestr>/scratch1/NCEPDEV/global/glopara/dump/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.updated.status.tm00.bufr_d</cyclestr></datadep>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="gdasanal" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/anal.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasanal_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:50:00</walltime>
+	<nodes>40:ppn=4:tpp=10</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasanal.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasprep"/>
+			<metataskdep metatask="enkfgdasepmn" cycle_offset="-06:00:00"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="gdassfcanl" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/sfcanl.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdassfcanl_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:10:00</walltime>
+	<nodes>1:ppn=40:tpp=1</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdassfcanl.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<taskdep task="gdasanal"/>
+	</dependency>
+
+</task>
+
+<task name="gdasanalcalc" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/analcalc.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasanalcalc_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:10:00</walltime>
+	<nodes>4:ppn=40:tpp=1</nodes>
+	<memory>48GB</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasanalcalc.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasanal"/>
+			<taskdep task="gdassfcanl"/>
+			<taskdep task="enkfgdasechgres" cycle_offset="-06:00:00"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="gdasanaldiag" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/analdiag.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasanaldiag_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:15:00</walltime>
+	<nodes>3:ppn=40:tpp=1</nodes>
+	<memory>48GB</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasanaldiag.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasanal"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="gdasfcst" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/fcst.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasfcst_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>01:00:00</walltime>
+	<nodes>20:ppn=40:tpp=1</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasfcst.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<or>
+			<and>
+				<taskdep task="gdassfcanl"/>
+			</and>
+			<not><cycleexistdep cycle_offset="-06:00:00"/></not>
+		</or>
+	</dependency>
+
+</task>
+
+<metatask name="gdaspost">
+
+	<var name="grp">_anl _f000 _f001 _f002 _f003 _f004 _f005 _f006 _f007 _f008 _f009</var>
+	<var name="dep">anl f000 f001 f002 f003 f004 f005 f006 f007 f008 f009</var>
+	<var name="lst">anl f000 f001 f002 f003 f004 f005 f006 f007 f008 f009</var>
+
+	<task name="gdaspost#grp#" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+		<command>&JOBS_DIR;/post.sh</command>
+
+		<jobname><cyclestr>&PSLOT;_gdaspost#grp#_@H</cyclestr></jobname>
+		<account>rtrr</account>
+		<queue>batch</queue>
+		<partition>hera</partition>
+		<walltime>00:12:00</walltime>
+		<nodes>4:ppn=40:tpp=1</nodes>
+		<native>--export=NONE</native>
+
+		<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdaspost#grp#.log</cyclestr></join>
+
+		<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+		<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+		<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+		<envar><name>NET</name><value>gfs</value></envar>
+		<envar><name>CDUMP</name><value>gdas</value></envar>
+		<envar><name>RUN</name><value>gdas</value></envar>
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+		<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+		<envar><name>FHRGRP</name><value>#grp#</value></envar>
+		<envar><name>FHRLST</name><value>#lst#</value></envar>
+		<envar><name>ROTDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/hrly021918</value></envar>
+
+		<dependency>
+			<or>
+				<datadep><cyclestr>&ROTDIR;/gdas.@Y@m@d/@H//model_data/atmos/history/gdas.t@Hz.atm.log#dep#.txt</cyclestr></datadep>
+				<taskdep task="gdasfcst"/>
+			</or>
+		</dependency>
+
+	</task>
+
+</metatask>
+
+<task name="gdasvrfy" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/vrfy.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasvrfy_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>03:00:00</walltime>
+	<nodes>3:ppn=1:tpp=1</nodes>
+	<memory>16384M</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasvrfy.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<metataskdep metatask="gdaspost"/>
+	</dependency>
+
+</task>
+
+<task name="gdasfit2obs" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/fit2obs.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasfit2obs_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:20:00</walltime>
+	<nodes>3:ppn=1:tpp=1</nodes>
+	<memory>20G</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasfit2obs.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<metataskdep metatask="gdaspost"/>
+	</dependency>
+
+</task>
+
+<task name="gdasarch" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/arch.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_gdasarch_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>service</partition>
+	<walltime>06:00:00</walltime>
+	<nodes>1:ppn=1:tpp=1</nodes>
+	<memory>4096M</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/gdasarch.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>gdas</value></envar>
+	<envar><name>RUN</name><value>gdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasvrfy"/>
+			<taskdep task="gdasfit2obs"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="enkfgdaseobs" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/eobs.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_enkfgdaseobs_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:15:00</walltime>
+	<nodes>5:ppn=20:tpp=2</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdaseobs.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+	<envar><name>RUN</name><value>enkfgdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasprep"/>
+			<metataskdep metatask="enkfgdasepmn" cycle_offset="-06:00:00"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="enkfgdaseupd" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/eupd.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_enkfgdaseupd_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:30:00</walltime>
+	<nodes>54:ppn=5:tpp=8</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdaseupd.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+	<envar><name>RUN</name><value>enkfgdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<taskdep task="enkfgdasediag"/>
+	</dependency>
+
+</task>
+
+<task name="enkfgdasechgres" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/echgres.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_enkfgdasechgres_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:10:00</walltime>
+	<nodes>3:ppn=1:tpp=40</nodes>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasechgres.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+	<envar><name>RUN</name><value>enkfgdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasfcst"/>
+			<taskdep task="enkfgdasefcs01"/>
+		</and>
+	</dependency>
+
+</task>
+
+<task name="enkfgdasediag" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/ediag.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_enkfgdasediag_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:15:00</walltime>
+	<nodes>2:ppn=40:tpp=1</nodes>
+	<memory>30GB</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasediag.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+	<envar><name>RUN</name><value>enkfgdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<taskdep task="enkfgdaseobs"/>
+	</dependency>
+
+</task>
+
+<metatask name="enkfgdasecmn">
+
+	<var name="grp">000 001 002</var>
+	<var name="dep">003 006 009</var>
+	<var name="lst">003 006 009</var>
+
+	<task name="enkfgdasecen#grp#" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+		<command>&JOBS_DIR;/ecen.sh</command>
+
+		<jobname><cyclestr>&PSLOT;_enkfgdasecen#grp#_@H</cyclestr></jobname>
+		<account>rtrr</account>
+		<queue>batch</queue>
+		<partition>hera</partition>
+		<walltime>00:10:00</walltime>
+		<nodes>4:ppn=20:tpp=2</nodes>
+		<native>--export=NONE</native>
+
+		<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasecen#grp#.log</cyclestr></join>
+
+		<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+		<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+		<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+		<envar><name>NET</name><value>gfs</value></envar>
+		<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+		<envar><name>RUN</name><value>enkfgdas</value></envar>
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+		<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+		<envar><name>FHRGRP</name><value>#grp#</value></envar>
+		<envar><name>FHRLST</name><value>#lst#</value></envar>
+
+		<dependency>
+			<and>
+				<taskdep task="gdasanalcalc"/>
+				<taskdep task="enkfgdaseupd"/>
+			</and>
+		</dependency>
+
+	</task>
+
+</metatask>
+
+<task name="enkfgdasesfc" cycledefs="gdas" maxtries="&MAXTRIES;">
+
+	<command>&JOBS_DIR;/esfc.sh</command>
+
+	<jobname><cyclestr>&PSLOT;_enkfgdasesfc_@H</cyclestr></jobname>
+	<account>rtrr</account>
+	<queue>batch</queue>
+	<partition>hera</partition>
+	<walltime>00:08:00</walltime>
+	<nodes>2:ppn=40:tpp=1</nodes>
+	<memory>80GB</memory>
+	<native>--export=NONE</native>
+
+	<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasesfc.log</cyclestr></join>
+
+	<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+	<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+	<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+	<envar><name>NET</name><value>gfs</value></envar>
+	<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+	<envar><name>RUN</name><value>enkfgdas</value></envar>
+	<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+	<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+	<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+	<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+	<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+
+	<dependency>
+		<and>
+			<taskdep task="gdasanalcalc"/>
+			<taskdep task="enkfgdaseupd"/>
+		</and>
+	</dependency>
+
+</task>
+
+<metatask name="enkfgdasefmn">
+
+	<var name="grp">01 02 03 04 05 06 07 08 09 10</var>
+
+	<task name="enkfgdasefcs#grp#" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+		<command>&JOBS_DIR;/efcs.sh</command>
+
+		<jobname><cyclestr>&PSLOT;_enkfgdasefcs#grp#_@H</cyclestr></jobname>
+		<account>rtrr</account>
+		<queue>batch</queue>
+		<partition>hera</partition>
+		<walltime>01:00:00</walltime>
+		<nodes>6:ppn=40:tpp=1</nodes>
+		<native>--export=NONE</native>
+
+		<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasefcs#grp#.log</cyclestr></join>
+
+		<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+		<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+		<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+		<envar><name>NET</name><value>gfs</value></envar>
+		<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+		<envar><name>RUN</name><value>enkfgdas</value></envar>
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+		<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+		<envar><name>ENSGRP</name><value>#grp#</value></envar>
+
+		<dependency>
+			<or>
+				<and>
+					<metataskdep metatask="enkfgdasecmn"/>
+					<taskdep task="enkfgdasesfc"/>
+				</and>
+				<not><cycleexistdep cycle_offset="-06:00:00"/></not>
+			</or>
+		</dependency>
+
+	</task>
+
+</metatask>
+
+<metatask name="enkfgdasepmn">
+
+	<var name="grp">000 001 002 003 004 005 006</var>
+	<var name="dep">f003 f004 f005 f006 f007 f008 f009</var>
+	<var name="lst">f003 f004 f005 f006 f007 f008 f009</var>
+
+	<task name="enkfgdasepos#grp#" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+		<command>&JOBS_DIR;/epos.sh</command>
+
+		<jobname><cyclestr>&PSLOT;_enkfgdasepos#grp#_@H</cyclestr></jobname>
+		<account>rtrr</account>
+		<queue>batch</queue>
+		<partition>hera</partition>
+		<walltime>00:15:00</walltime>
+		<nodes>2:ppn=40:tpp=1</nodes>
+		<native>--export=NONE</native>
+
+		<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasepos#grp#.log</cyclestr></join>
+
+		<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+		<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+		<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+		<envar><name>NET</name><value>gfs</value></envar>
+		<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+		<envar><name>RUN</name><value>enkfgdas</value></envar>
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+		<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+		<envar><name>FHRGRP</name><value>#grp#</value></envar>
+		<envar><name>FHRLST</name><value>#lst#</value></envar>
+
+		<dependency>
+			<metataskdep metatask="enkfgdasefmn"/>
+		</dependency>
+
+	</task>
+
+</metatask>
+
+<metatask name="enkfgdaseamn">
+
+	<var name="grp">00 01 02</var>
+
+	<task name="enkfgdasearc#grp#" cycledefs="gdas_half,gdas" maxtries="&MAXTRIES;">
+
+		<command>&JOBS_DIR;/earc.sh</command>
+
+		<jobname><cyclestr>&PSLOT;_enkfgdasearc#grp#_@H</cyclestr></jobname>
+		<account>rtrr</account>
+		<queue>batch</queue>
+		<partition>service</partition>
+		<walltime>06:00:00</walltime>
+		<nodes>1:ppn=1:tpp=1</nodes>
+		<memory>4096M</memory>
+		<native>--export=NONE</native>
+
+		<join><cyclestr>&ROTDIR;/logs/@Y@m@d@H/enkfgdasearc#grp#.log</cyclestr></join>
+
+		<envar><name>RUN_ENVIR</name><value>emc</value></envar>
+		<envar><name>HOMEgfs</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/arfs</value></envar>
+		<envar><name>EXPDIR</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/expdir/hrly021918</value></envar>
+		<envar><name>NET</name><value>gfs</value></envar>
+		<envar><name>CDUMP</name><value>enkfgdas</value></envar>
+		<envar><name>RUN</name><value>enkfgdas</value></envar>
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>COMROOT</name><value>/scratch1/NCEPDEV/global/glopara/com</value></envar>
+		<envar><name>DATAROOT</name><value>/scratch2/BMC/wrfruc/Guoqing.Ge/ufs-ar/comrot/stmp/RUNDIRS/hrly021918</value></envar>
+		<envar><name>ENSGRP</name><value>#grp#</value></envar>
+
+		<dependency>
+			<metataskdep metatask="enkfgdasepmn"/>
+		</dependency>
+
+	</task>
+
+</metatask>
+
+</workflow>
