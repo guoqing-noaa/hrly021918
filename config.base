@@ -260,6 +260,8 @@ export FHMAX_GFS_00=120
 export FHMAX_GFS_06=120
 export FHMAX_GFS_12=120
 export FHMAX_GFS_18=120
+export FHMAX_GFS_19=120
+export FHMAX_GFS_20=120
 current_fhmax_var=FHMAX_GFS_${cyc}; declare -x FHMAX_GFS=${!current_fhmax_var}
 
 export FHOUT_GFS=6 # Must be 6 for S2S until #1629 is addressed; 3 for ops
