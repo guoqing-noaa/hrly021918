@@ -57,6 +57,9 @@ export DO_BUFRSND="NO"     # BUFR sounding products
 export DO_GEMPAK="NO"      # GEMPAK products
 export DO_AWIPS="NO"       # AWIPS products
 export DO_VRFY="YES"       # VRFY step
+export DO_VERFOZN="YES"    # Ozone data assimilation monitoring
+export DO_VERFRAD="YES"    # Radiance data assimilation monitoring
+export DO_VMINMON="YES"    # GSI minimization monitoring
 
 # NO for retrospective parallel; YES for real-time parallel
 #  arch.sh uses REALTIME for MOS.  Need to set REALTIME=YES
@@ -130,7 +133,6 @@ export REDOUT="1>"
 export REDERR="2>"
 
 export SENDECF=${SENDECF:-"NO"}
-export SENDCOM=${SENDCOM:-"YES"}
 export SENDSDM=${SENDSDM:-"NO"}
 export SENDDBN_NTC=${SENDDBN_NTC:-"NO"}
 export SENDDBN=${SENDDBN:-"NO"}
@@ -153,7 +155,7 @@ export cplwav2atm=".false."
 export FRAC_GRID=".true."
 
 # Set operational resolution
-export OPS_RES="C768" # Do not change
+export OPS_RES="C768" # Do not change # TODO: Why is this needed and where is it used?
 
 # Resolution specific parameters
 export LEVS=128
@@ -212,7 +214,7 @@ case "${APP}" in
     export DO_COUPLED="YES"
     export DO_OCN="YES"
     export DO_ICE="YES"
-    export CCPP_SUITE="FV3_GFS_v17_coupled_p8"
+    export CCPP_SUITE="FV3_GFS_v17_coupled_p8"  # TODO: Does this include FV3_GFS_v17_p8?  Can this be used instead of FV3_GFS_v17_p8 on L149
     export confignamevarfornems="cpld"
 
     if [[ "${APP}" =~ A$ ]]; then
@@ -397,6 +399,9 @@ export ARCH_CYC=00           # Archive data at this cycle for warm_start capabil
 export ARCH_WARMICFREQ=4     # Archive frequency in days for warm_start capability
 export ARCH_FCSTICFREQ=1     # Archive frequency in days for gdas and gfs forecast-only capability
 
-export DELETE_COM_IN_ARCHIVE_JOB="YES"   # NO=retain ROTDIR.  YES default in arch.sh and earc.sh.
+#--online archive of nemsio files for fit2obs verification
+export FITSARC="YES"
+export FHMAX_FITS=132
+[[ "${FHMAX_FITS}" -gt "${FHMAX_GFS}" ]] && export FHMAX_FITS=${FHMAX_GFS}
 
 echo "END: config.base"
